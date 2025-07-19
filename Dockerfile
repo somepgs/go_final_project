@@ -9,8 +9,8 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /todo ./cmd/main.go
 
-ENV TODO_PORT=7540 \
-    TODO_DBFILE=/data/scheduler.db \
+ENV TODO_PORT=7540
+    TODO_DBFILE=../scheduler.db
     TODO_PASSWORD=12345
 
 EXPOSE ${TODO_PORT}
