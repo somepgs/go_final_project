@@ -37,7 +37,7 @@ func loadConfig() config {
 	}
 	return config{
 		Port:     port,
-		DBFile:   envOr("TODO_DBFILE", "./scheduler.db"),
+		DBFile:   envOr("TODO_DBFILE", "../scheduler.db"),
 		Password: mustEnv("TODO_PASSWORD"),
 	}
 }
