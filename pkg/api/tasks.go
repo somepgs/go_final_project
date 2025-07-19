@@ -16,24 +16,24 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	if search != "" {
 		tasks, err := db.SearchTasks(search, limitTasks)
 		if err != nil {
-			writeJson(w, map[string]any{"error": err.Error()})
+			writeJson(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
 			return
 		}
 		if len(tasks) == 0 {
-			writeJson(w, tasksResp{Tasks: []*db.Task{}})
+			writeJson(w, http.StatusNoContent, tasksResp{Tasks: []*db.Task{}})
 			return
 		}
-		writeJson(w, tasksResp{Tasks: tasks})
+		writeJson(w, http.StatusOK, tasksResp{Tasks: tasks})
 		return
 	}
 	tasks, err := db.Tasks(limitTasks)
 	if err != nil {
-		writeJson(w, map[string]any{"error": err.Error()})
+		writeJson(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
 		return
 	}
 	if len(tasks) == 0 {
-		writeJson(w, tasksResp{Tasks: []*db.Task{}})
+		writeJson(w, http.StatusNoContent, tasksResp{Tasks: []*db.Task{}})
 		return
 	}
-	writeJson(w, tasksResp{Tasks: tasks})
+	writeJson(w, http.StatusOK, tasksResp{Tasks: tasks})
 }

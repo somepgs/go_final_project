@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,28 +11,24 @@ import (
 
 const webDir = "web"
 
-var myServer *http.Server
+var srv *http.Server
 
-func Run() {
-	port := os.Getenv("TODO_PORT")
-	if port == "" {
-		port = "7540"
-	}
-
+func Run(port int, password string) {
 	logger := log.New(os.Stdout, "http: ", log.LstdFlags)
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir(webDir)))
-	api.Init(mux)
+	api.Init(mux, password)
 
-	myServer = &http.Server{
-		Addr:     ":" + port,
+	adr := fmt.Sprintf(":%d", port)
+	srv = &http.Server{
+		Addr:     adr,
 		Handler:  mux,
 		ErrorLog: logger,
 	}
 
-	log.Printf("Server is starting on port %s", port)
-	if err := myServer.ListenAndServe(); err != nil {
+	log.Printf("Server is starting on port %d", port)
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

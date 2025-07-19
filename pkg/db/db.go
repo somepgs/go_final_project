@@ -24,18 +24,15 @@ var db *sql.DB
 // Init initializes the database connection and creates the scheduler table if it does not exist.
 // It checks for the existence of the database file specified by the TODO_DBFILE environment variable.
 // If the file does not exist, it creates the table using the defined schema.
-func Init() error {
+func Init(dbFile string) error {
 	var err error
 	var install bool
 
-	dbFile := os.Getenv("TODO_DBFILE")
-	if dbFile == "" {
-		dbFile = "scheduler.db" // Default database file name
-	}
-
-	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
+	_, err = os.Stat(dbFile)
+	if os.IsNotExist(err) {
 		install = true
-	} else if err != nil {
+	}
+	if err != nil {
 		return fmt.Errorf("error checking database file: %w", err)
 	}
 

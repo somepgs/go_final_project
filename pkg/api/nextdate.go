@@ -23,6 +23,10 @@ const formatDate = "20060102" // Format for date in YYYYMMDD format
 // Example request: /api/nextdate?now=20240126&date=20240113&repeat=d 7
 // Example response: 20240127
 func nextDayHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	now := r.FormValue("now")
 	if now == "" {
 		now = time.Now().Format(formatDate)
@@ -42,7 +46,11 @@ func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(nextDate))
+	_, err = w.Write([]byte(nextDate))
+	if err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // NextDate calculates the next date based on the provided start date and repeat pattern.
@@ -183,9 +191,11 @@ func addMonth(date, now time.Time, interval []string) (time.Time, error) {
 
 	daysOfMonth := strings.Split(strings.TrimSpace(interval[0]), ",")
 	var months []string
+	// If the interval has more than one part, the second part contains the months
 	if len(interval) > 1 {
 		months = strings.Split(strings.TrimSpace(interval[1]), ",")
-	} else {
+	}
+	if len(interval) == 1 {
 		months = []string{} // Default to empty if no months are provided
 	}
 
@@ -194,7 +204,8 @@ func addMonth(date, now time.Time, interval []string) (time.Time, error) {
 		for i := 1; i <= 12; i++ {
 			monthMap[i] = true
 		}
-	} else {
+	}
+	if len(months) > 0 {
 		for _, m := range months {
 			m, err := strconv.Atoi(m)
 			if err != nil || m < 1 || m > 12 {

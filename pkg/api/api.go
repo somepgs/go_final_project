@@ -4,8 +4,11 @@ import (
 	"net/http"
 )
 
+var password string // password is the password used for authentication, set during initialization.
+
 // Init initializes the API routes and handlers.
-func Init(mux *http.ServeMux) {
+func Init(mux *http.ServeMux, pass string) {
+	password = pass // Set the password for authentication
 	mux.HandleFunc("/api/nextdate", nextDayHandler)
 	mux.HandleFunc("/api/task", auth(taskHandler))
 	mux.HandleFunc("/api/tasks", auth(tasksHandler))

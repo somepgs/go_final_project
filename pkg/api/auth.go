@@ -7,20 +7,18 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/somepgs/go_final_project/tests"
 	"net/http"
-	"os"
 )
 
 var secretKey = []byte("my_secret_key") // This should be a secure key, ideally loaded from an environment variable or a secure vault
 
 func signInHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeJson(w, map[string]any{"error": "Неверный метод запроса"})
+		writeJson(w, http.StatusMethodNotAllowed, map[string]any{"error": "Method not allowed"})
 		return
 	}
 
-	password := os.Getenv("TODO_PASSWORD")
 	if password == "" {
-		writeJson(w, map[string]any{"error": "Password not set"})
+		writeJson(w, http.StatusBadRequest, map[string]any{"error": "Password not set"})
 		return
 	}
 
@@ -28,30 +26,29 @@ func signInHandler(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeJson(w, map[string]any{"error": "Invalid JSON format"})
+		writeJson(w, http.StatusBadRequest, map[string]any{"error": "Invalid JSON format"})
 		return
 	}
 
 	if req.Password != password {
-		writeJson(w, map[string]any{"error": "Invalid password"})
+		writeJson(w, http.StatusUnauthorized, map[string]any{"error": "Invalid password"})
 		return
 	}
 	token, err := createJWT([]byte(password))
 	if err != nil {
-		writeJson(w, map[string]any{"error": "Failed to create token"})
+		writeJson(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
 		Name:  "token",
 		Value: token,
 	})
-	writeJson(w, map[string]string{"token": token})
+	writeJson(w, http.StatusOK, map[string]any{"token": token})
 }
 
 func auth(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		pass := os.Getenv("TODO_PASSWORD")
-		if len(pass) > 0 {
+		if len(password) > 0 {
 			var token string
 			cookie, err := r.Cookie("token")
 			if err == nil {
@@ -59,7 +56,7 @@ func auth(next http.HandlerFunc) http.HandlerFunc {
 			}
 			var valid bool
 			if token != "" {
-				valid, err = checkJWT(token, []byte(pass))
+				valid, err = checkJWT(token, []byte(password))
 				if err != nil {
 					http.Error(w, "Invalid token", http.StatusUnauthorized)
 					return

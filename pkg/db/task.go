@@ -29,7 +29,7 @@ func AddTask(task *Task) (int64, error) {
 
 // Tasks retrieves a limited number of tasks from the database, ordered by date.
 func Tasks(limit int) ([]*Task, error) {
-	rows, err := db.Query("SELECT * FROM scheduler ORDER BY date LIMIT :limit", sql.Named("limit", limit))
+	rows, err := db.Query("SELECT id, date, title, comment, repeat FROM scheduler ORDER BY date LIMIT :limit", sql.Named("limit", limit))
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func Tasks(limit int) ([]*Task, error) {
 // SearchTasks searches for tasks by title, comment, or date.
 func SearchTasks(search string, limit int) ([]*Task, error) {
 	if date, err := time.Parse("02.01.2006", search); err == nil {
-		rows, err := db.Query("SELECT * FROM scheduler WHERE date = :date LIMIT :limit",
+		rows, err := db.Query("SELECT id, date, title, comment, repeat FROM scheduler WHERE date = :date LIMIT :limit",
 			sql.Named("date", date.Format("20060102")), sql.Named("limit", limit))
 		if err != nil {
 			return nil, err
@@ -49,7 +49,8 @@ func SearchTasks(search string, limit int) ([]*Task, error) {
 		return getTasks(rows)
 	}
 
-	rows, err := db.Query("SELECT * FROM scheduler WHERE LOWER(title) LIKE LOWER(:search) OR LOWER(comment) LIKE LOWER(:search) ORDER BY date LIMIT :limit",
+	rows, err := db.Query("SELECT id, date, title, comment, repeat FROM scheduler WHERE LOWER(title) LIKE LOWER(:search) "+
+		"OR LOWER(comment) LIKE LOWER(:search) ORDER BY date LIMIT :limit",
 		sql.Named("search", "%"+search+"%"), sql.Named("limit", limit))
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func SearchTasks(search string, limit int) ([]*Task, error) {
 // GetTask retrieves a task by its ID from the database.
 func GetTask(id string) (*Task, error) {
 	var task Task
-	err := db.QueryRow("SELECT * FROM scheduler WHERE id = :id",
+	err := db.QueryRow("SELECT id, date, title, comment, repeat FROM scheduler WHERE id = :id",
 		sql.Named("id", id)).Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
 	if err != nil {
 		if err == sql.ErrNoRows {
