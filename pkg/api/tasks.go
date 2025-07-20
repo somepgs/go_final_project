@@ -20,7 +20,7 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(tasks) == 0 {
-			writeJson(w, http.StatusNoContent, tasksResp{Tasks: []*db.Task{}})
+			writeJson(w, http.StatusOK, tasksResp{Tasks: []*db.Task{}})
 			return
 		}
 		writeJson(w, http.StatusOK, tasksResp{Tasks: tasks})
@@ -32,7 +32,7 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(tasks) == 0 {
-		writeJson(w, http.StatusNoContent, tasksResp{Tasks: []*db.Task{}})
+		writeJson(w, http.StatusOK, tasksResp{Tasks: []*db.Task{}})
 		return
 	}
 	writeJson(w, http.StatusOK, tasksResp{Tasks: tasks})

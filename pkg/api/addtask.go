@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -78,7 +79,6 @@ func writeJson(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	_, err = w.Write(jsonData)
 	if err != nil {
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
-		return
+		log.Printf("Error writing response: %v", err)
 	}
 }

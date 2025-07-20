@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 
 	_ "modernc.org/sqlite"
@@ -28,12 +27,10 @@ func Init(dbFile string) error {
 	var err error
 	var install bool
 
+	// Check if the database file exists
 	_, err = os.Stat(dbFile)
-	if os.IsNotExist(err) {
-		install = true
-	}
 	if err != nil {
-		return fmt.Errorf("error checking database file: %w", err)
+		install = true
 	}
 
 	db, err = sql.Open("sqlite", dbFile)

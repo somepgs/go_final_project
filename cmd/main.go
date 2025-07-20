@@ -9,12 +9,14 @@ import (
 	"github.com/somepgs/go_final_project/pkg/server"
 )
 
+// config holds the configuration for the application.
 type config struct {
 	Port     int
 	DBFile   string
 	Password string
 }
 
+// envOr retrieves the value of the environment variable named by key.
 func envOr(key, def string) string {
 	if v, ok := os.LookupEnv(key); ok {
 		return v
@@ -22,23 +24,16 @@ func envOr(key, def string) string {
 	return def
 }
 
-func mustEnv(key string) string {
-	v, ok := os.LookupEnv(key)
-	if !ok || v == "" {
-		log.Fatalf("environment variable %s is required", key)
-	}
-	return v
-}
-
+// loadConfig loads the configuration from environment variables.
 func loadConfig() config {
-	port, err := strconv.Atoi(envOr("TODO_PORT", "7540"))
+	port, err := strconv.Atoi(envOr("TODO_PORT", "7540")) // Default port is 7540
 	if err != nil || port <= 0 || port > 65535 {
 		log.Fatalf("invalid TODO_PORT: %v", err)
 	}
 	return config{
 		Port:     port,
-		DBFile:   envOr("TODO_DBFILE", "../scheduler.db"),
-		Password: mustEnv("TODO_PASSWORD"),
+		DBFile:   envOr("TODO_DBFILE", "scheduler.db"), // Default database file is scheduler.db
+		Password: envOr("TODO_PASSWORD", "12345"),      // Default password is 12345
 	}
 }
 
