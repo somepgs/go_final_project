@@ -25,8 +25,12 @@ jobs:
       run: go mod tidy
 
     - name: Run local server
+      env:
+        TODO_PORT: "7540"
+        TODO_DBFILE: "./scheduler.db"
+        TODO_PASSWORD: "12345"
       run: |
-        CGO_ENABLED=0 GOOS=linux go run main.go &
+        CGO_ENABLED=0 GOOS=linux go run ./cmd &
         sleep 100
         go test -run ^TestApp$ ./tests
         
